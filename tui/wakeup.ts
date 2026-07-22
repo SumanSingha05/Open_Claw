@@ -1,6 +1,7 @@
 import { select, isCancel } from "@clack/prompts";
 import chalk from "chalk" // use to add coloring to the commands
 import figlet from "figlet";
+import { runCliMode } from "../modes/cli";
 
 const BANNER_FONT = 'ANSI Shadow';
 const SHADOW = chalk.hex('#5b4d9e');
@@ -32,4 +33,25 @@ export async function runWakeup() {
     }
 
     printBannerWithShadow(ascii);
+
+    const mode = await select({
+        message: "Which mode you want to proceed with?",
+        options: [
+            { value: "cli", label: "CLI" },
+            { value: "telegram", label: "Telegram" },
+            { value: "exit", label: "Exit" }
+        ]
+    });
+
+    if (isCancel(mode || mode === "exit")) {
+        console.log(chalk.dim('\n Goodbye. \n'));
+        return;
+    }
+
+    if (mode === 'cli') {
+        await runCliMode()
+    }
+    else {
+        console.log(chalk.dim("Starting telegram mode..."))
+    }
 }
