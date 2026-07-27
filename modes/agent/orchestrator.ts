@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { defaultAgentConfig } from "./types";
 import { ActionTracker } from "./action-tracker";
 import { ToolExecutor } from "./tool-executer";
+import { createAgentTools } from "./agent-tools";
 
 export async function runAgentMode() {
     console.log(chalk.bold("\n Agent Mode\n"));
@@ -17,5 +18,5 @@ export async function runAgentMode() {
     const config = defaultAgentConfig()
     const tracker = new ActionTracker()
     const executor = new ToolExecutor(tracker, config) // this is the most important thing for the agent workflow
-
+    const tools = createAgentTools(executor)
 }
