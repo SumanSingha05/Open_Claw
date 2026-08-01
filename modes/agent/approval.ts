@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { select, isCancel } from "@clack/prompts";
 import type { ActionLog } from "./types.ts";
 import { composeBeforeAfter, formatPatch } from "./diff-view.ts";
+import { renderTerminalMarkdown } from "../../tui/terminal-md.ts";
 
 interface ReviewGroup {
     label: string;
@@ -89,4 +90,45 @@ export async function runApprovalFlow(tracker: ActionTracker): Promise<boolean> 
         for (const a of pending) tracker.updateStatus(a.id, "approved", true);
         return true;
     }
+
+    for (const g of groupPending(pending)) {
+        while (true) {
+            const opt = await select({
+                message: chalk.bold(g.label),
+                options: [
+                    { value: "accept", label: "Accept" },
+                    { value: "diff", label: "Show diff", hint: g.patch ? "" : "N/A" },
+                    { value: "reject", label: "Reject" },
+                ],
+            });
+
+            if (isCancel(opt)) {
+                for (const a of pending) tracker.updateStatus(a.id, "rejected", false);
+                return false;
+            }
+
+            if (opt === "diff") {
+                if (g.patch) {
+                    console.log(
+                        "\n" +
+                        renderTerminalMarkdown("```diff\n" + g.patch + "\n```\n") +
+                        "\n",
+                    );
+                }
+
+                continue;
+            }
+
+            for (const id of g.actionIds) {
+                tracker.updateStatus(
+                    id,
+                    opt === "accept" ? "approved" : "rejected",
+                    opt === "accept",
+                );
+            }
+            break;
+        }
+    }
+
+    return tracker.getActions().some((a) => a.status === "approved");
 }
