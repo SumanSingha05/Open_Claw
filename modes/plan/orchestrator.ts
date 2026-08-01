@@ -9,6 +9,7 @@ import { defaultAgentConfig } from "../agent/types.ts";
 import { runApprovalFlow } from "../agent/approval.ts";
 import { renderTerminalMarkdown } from "../../tui/terminal-md.ts";
 import { generatePlan } from "./planner.ts";
+import { printPlan } from "./selection.ts";
 
 
 export async function runPlanMode(): Promise<void> {
@@ -20,4 +21,5 @@ export async function runPlanMode(): Promise<void> {
 
     const plan = await generatePlan(goal);
 
+    printPlan(plan)
 }
