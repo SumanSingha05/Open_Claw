@@ -12,5 +12,6 @@ function ensureMarked(): void {
 }
 
 export function renderTerminalMarkdown(source: string): string {
+    ensureMarked();
     return marked.parse(source.trimEnd(), { async: false })
 }
